@@ -4,8 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-def send_callback(driver):
-    driver.get("https://bookinghealth.com/")
+def send_callback(driver,url):
+    driver.get(url)
     driver.maximize_window()
     time.sleep(3)
     driver.execute_script("window.scrollTo(0, 400);")
@@ -20,9 +20,13 @@ def send_callback(driver):
     rows[3].send_keys('test')
     form.find_element_by_css_selector('button').click()
     WebDriverWait(driver, 200).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="call_a_doctor"]/div/div/div/p')))
+    if driver.find_element_by_xpath('//*[@id="call_a_doctor"]/div/div/div/p').is_displayed():
+        return 'success'
+    else:
+        return 'fail'
 
-def send_offer(driver):
-    driver.get("https://bookinghealth.com/order")
+def send_offer(driver,url):
+    driver.get(url)
     WebDriverWait(driver, 200).until(EC.visibility_of_element_located((By.CLASS_NAME, "h_o_s")))
     form = driver.find_element_by_css_selector("div.request_step.request_inner_1")
     form.find_element_by_id('dis').send_keys('test')
@@ -49,10 +53,13 @@ def send_offer(driver):
     rows[1].send_keys('test')
     driver.find_element_by_css_selector('button.btn.btn-raised.btn-warning.h_o_s.request_send').click()
     WebDriverWait(driver, 200).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.thx')))
-
+    if driver.find_element_by_css_selector('div.thx').is_displayed():
+        return 'success'
+    else:
+        return 'fail'
 driver = webdriver.PhantomJS()
-send_callback(driver)
-print('callback done')
-send_offer(driver)
-print('offer done')
+print ('russian callback:',send_callback(driver,"https://bookinghealth.ru/"))
+print ('russian get offer:',send_offer(driver,"https://bookinghealth.ru/order"))
+print ('english callback:',send_callback(driver,"https://bookinghealth.com/"))
+print ('english get offer:',send_offer(driver,"https://bookinghealth.com/order"))
 driver.close()
